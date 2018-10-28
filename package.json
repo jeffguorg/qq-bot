@@ -3,7 +3,10 @@
     "version": "0.0.1",
     "dependencies": {
         "@google-cloud/translate": "^1.1.0",
+        "md5": "^2.2.1",
+        "request": "^2.88.0",
         "shell-quote": "^1.6.1",
+        "tencentcloud-sdk-nodejs": "^3.0.25",
         "ws": "^6.0.0"
     },
     "scripts": {

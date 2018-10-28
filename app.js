@@ -12,12 +12,15 @@ new handlers.CatHandler("cat");
 new handlers.KeywordResponder();
 new handlers.AtHandler();
 new handlers.ShortHandler("s");
+new handlers.TranslateHandler("translate");
 
 global.debug = true;
 global.echo = true;
 
+console.log("starting server")
 
 wss.on('connection', function connection(ws,req) {
+    console.log("accepting connection")
     const cqc = new CQClient(config.client.endpoint);
     const path = req.url;
     var repeat = {};
