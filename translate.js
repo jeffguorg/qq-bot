@@ -1,7 +1,5 @@
 const request=require("request");
-const utf8 = require("utf8");
 const md5 = require("md5");
-const crypto = require("crypto");
 const config = require("./config");
 const tencentcloud = require("tencentcloud-sdk-nodejs");
 
