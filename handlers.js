@@ -118,19 +118,24 @@ class RepeatHandler extends CQHandler {
                 }
             }]
         }
+        let possibility = Math.min(kwargs.possibility || 1, 0.2)
+        if(message["user_id"] == 1254847698) {
+            possibility = kwargs.possibility;
+        }
         if(cmd == "repeat") {
             if(args.length == 0){
                 RepeatHandler.state.machines[message['group_id']] = 
                     RepeatHandler.state.machines[message['group_id']] == null?
-                        {on: true}:
+                        {on: true, possibility}:
                         (RepeatHandler.state.machines[message['group_id']].on == true ? { on: false}: {
-                            on: true
+                            on: true,
+                            possibility
                         });
             } else {
                 if(args[0].toLowerCase() == "on") {
                     RepeatHandler.state.machines[message['group_id']] = {
                         on: true,
-                        possibility: kwargs['possibility'] == null? 1: parseFloat(kwargs['possibility'])
+                        possibility,
                     };
                 } else if(args[0].toLowerCase() == "off") {
                     RepeatHandler.state.machines[message['group_id']] = {
@@ -295,53 +300,56 @@ class TranslateHandler extends CQHandler {
     }
     handle(cqc, message, cmd, args=[], kwargs={}, last=null, body=null) {
         var results = []
-        if(message['message_type'] == "group") {
-            if(args.includes("help")) {
-                cqc.groupmsg(message["group_id"], "Try this: +"+this.cmd + " [from=<language code>|auto] to=<language code> who=<QQ>.");
-                cqc.groupmsg(message["group_id"], "Language codes:\n\
-                zh : 中文\n\
-                en : 英文\n\
-                jp : 日语\n\
-                kr : 韩语\n\
-                de : 德语\n\
-                fr : 法语\n\
-                es : 西班牙文\n\
-                it : 意大利文\n\
-                tr : 土耳其文\n\
-                ru : 俄文\n\
-                pt : 葡萄牙文\n\
-                vi : 越南文\n\
-                id : 印度尼西亚文\n\
-                ms : 马来西亚文\n\
-                th : 泰文\n\
-                auto : 自动识别源语言，只能用于from字段");
-            } else {
-                if(args.length == 1) {
-                    switch(args[0]) {
-                        case "off":
-                            var qq = kwargs.qq || message['user_id'];
-                            delete TranslateHandler.state.targets[qq];
-                            break;
-                        case "help":
-                            cqc.groupmsg(message["group_id"], "+translate [from=<language code>|auto] to=<language code> [who=<QQ>] [match=Regex|.*]")
-                            break;
+        switch (args.length) {
+            case 0:
+                if (!("to" in kwargs)) {
+                    cqc.groupmsg(message["group_id"], "+" + this.cmd + " [from=<language code>|auto] to=<language code>")
+                } else {
+                    var user_id = message['user_id'];
+                    if(message["user_id"] == 1254847698) {
+                        if(kwargs.user_id) {
+                            user_id = kwargs.user_id
+                        }
                     }
-                }else{
-                    if(!("to" in kwargs)) {
-                        cqc.groupmsg(message["group_id"], "translate command dont need arguments. it accept these key word arguments: [from=<language code>|auto] to=<language code> who=<QQ>.")
-                    }else{
-                        var qq = kwargs.qq || message['user_id'];
-                        TranslateHandler.state.targets[qq] = {
-                            "from": kwargs.from || "auto",
-                            "to": kwargs.to,
-                            "match": new RegExp(kwargs.match || ".+")
-                        };
-                        cqc.groupmsg(message['group_id'], "added to targets")
-                        console.log(message['group_id'], TranslateHandler.state.targets)
-                    }
+                    TranslateHandler.state.targets[user_id] = {
+                        "from": kwargs.from || "auto",
+                        "to": kwargs.to,
+                        "match": new RegExp(kwargs.match || ".+")
+                    };
+                    cqc.groupmsg(message['group_id'], "added to targets")
                 }
-            }
+                break;
+            case 1:
+                switch (args[0]) {
+                    case 'help':
+                        return "Try this in group chat:\n +" + this.cmd + " [from=<language code>|auto] to=<language code>"
+                    case 'code':
+                        return "Language codes:\n\
+                        zh : 中文\n\
+                        en : 英文\n\
+                        jp : 日语\n\
+                        kr : 韩语\n\
+                        de : 德语\n\
+                        fr : 法语\n\
+                        es : 西班牙文\n\
+                        it : 意大利文\n\
+                        tr : 土耳其文\n\
+                        ru : 俄文\n\
+                        pt : 葡萄牙文\n\
+                        vi : 越南文\n\
+                        id : 印度尼西亚文\n\
+                        ms : 马来西亚文\n\
+                        th : 泰文\n\
+                        auto : 自动识别源语言，只能用于from字段"
+                    case 'off':
+                        var qq = kwargs.qq || message['user_id'];
+                        delete TranslateHandler.state.targets[qq];
+                        break;
+                }
+                break;
+            default:
         }
+        
         return results;
     }
     pipe(cqc, message) {
