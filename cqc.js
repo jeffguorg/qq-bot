@@ -34,6 +34,8 @@ module.exports = class CQClient extends events.EventEmitter {
                 console.debug("ws send: ", data)
             }
             this.ws.send(data)
+        } else {
+            console.warn("ws send: state not ready: ", this.ws.readyState, " | ", this.ws.OPEN)
         }
     }
 
