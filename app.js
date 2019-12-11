@@ -7,14 +7,15 @@ const shellquote = require("shell-quote")
 
 const wss = new WebSocket.Server({ port: config.server.port });
 
-new handlers.RepeatHandler("repeat");
-new handlers.CatHandler("cat");
-new handlers.KeywordResponder();
 new handlers.AtHandler();
+new handlers.CatHandler("cat");
+new handlers.JoinHandler()
+new handlers.KeywordResponder();
+new handlers.LeaveHandler()
+new handlers.PingHandler();
+new handlers.RepeatHandler("repeat");
 new handlers.ShortHandler("s");
 new handlers.TranslateHandler("translate");
-new handlers.JoinHandler()
-new handlers.LeaveHandler()
 
 global.debug = true;
 global.echo = true;

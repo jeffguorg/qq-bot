@@ -366,6 +366,16 @@ class TranslateHandler extends CQHandler {
     }
 }
 
+class PingHandler extends CQHandler {
+    constructor(cmd = null) {
+        super(cmd || "ping")
+    }
+
+    handle(cqc, message, cmd, args = [], kwargs = {}, last = null, body = null) {
+        return "pong"
+    }
+}
+
 module.exports = {
     AtHandler,
     CatHandler,
@@ -375,4 +385,5 @@ module.exports = {
     TranslateHandler,
     JoinHandler,
     LeaveHandler,
+    PingHandler,
 }
