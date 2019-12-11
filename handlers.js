@@ -299,12 +299,17 @@ class TranslateHandler extends CQHandler {
             "targets": {}
         }
     }
+
+    get help_message() {
+        return "+" + this.cmd + " [from=<language code>|auto] [match=<regexp>] to=<language code>"
+    }
+
     handle(cqc, message, cmd, args=[], kwargs={}, last=null, body=null) {
         var results = []
         switch (args.length) {
             case 0:
                 if (!("to" in kwargs)) {
-                    cqc.groupmsg(message["group_id"], "+" + this.cmd + " [from=<language code>|auto] to=<language code>")
+                    cqc.groupmsg(message["group_id"], this.help_message)
                 } else {
                     var user_id = message['user_id'];
                     if(config.admin.indexOf(message["user_id"]) >= 0) {
@@ -323,7 +328,7 @@ class TranslateHandler extends CQHandler {
             case 1:
                 switch (args[0]) {
                     case 'help':
-                        return "Try this in group chat:\n +" + this.cmd + " [from=<language code>|auto] to=<language code>"
+                        return "Try this in group chat:\n +" + this.help_message;
                     case 'code':
                         return "Language codes:\n\
                         zh : 中文\n\
