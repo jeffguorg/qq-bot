@@ -1,6 +1,6 @@
 const translate = require("./translate").APIs;
 const config = require("./config");
-const cache = require("./cache");
+//const cache = require("./cache");
 
 class CQHandler{
     constructor (...cmds) {
@@ -368,24 +368,87 @@ class TranslateHandler extends CQHandler {
             return;
         }
         let {user_id, group_id} = message;
-        if(config.admin.indexOf(message["user_id"]) >= 0) {
-            if(kwargs.user_id) {
-                user_id = kwargs.user_id
-            }
-            if(kwargs.group_id) {
-                user_id = kwargs.group_id
-            }
-        }
-        if(`${group_id}:${user_id}` in TranslateHandler.state.targets) {
+        let key = `${group_id}:${user_id}`;
+        if(key in TranslateHandler.state.targets) {
             if(config.debug) {
-                console.log(TranslateHandler.state.targets[`${group_id}:${user_id}`].match.test(message['message']))
+                console.log(TranslateHandler.state.targets[key].match.test(message['message']));
             }
-            if(TranslateHandler.state.targets[`${group_id}:${user_id}`].match.test(message['message'])) {
-                this.api.translate(message['message'], TranslateHandler.state.targets[user_id].from, TranslateHandler.state.targets[user_id].to, (response) => {
+            if(TranslateHandler.state.targets[key].match.test(message['message'])) {
+                this.api.translate(message['message'], TranslateHandler.state.targets[key].from, TranslateHandler.state.targets[key].to, (response) => {
                     cqc.groupmsg(group_id, response);
                 });
             }
         }
+    }
+}
+
+class ScheduleHandler extends CQHandler {
+    constructor() {
+        super("schedule", "sched", "sched-cancel")
+
+        let second = 1000;
+        let minute = second * 60;
+        let hour = minute * 60;
+        let day = hour * 24;
+        let week = day * 7;
+        let year = day * 365;
+        
+        this.unit = {
+            s: second,
+            m: minute,
+            h: hour,
+            d: day,
+            w: week,
+            y: year,
+        }
+    }
+
+    handle(cqc, message, cmd, args=[], kwargs={}, last=null, body=null) {
+        if(last == null) {
+            return "Please concatenate this command in the end";
+        }
+        if(cmd == 'sched-cancel') {
+            clearTimeout(parseInt(args[0]))
+        }
+
+        if(args.length == 0) {
+            return "Please specify a time delta or a date";
+        }
+        let spec = args[0];
+        var time = Date.now();
+        var timeoutid = 0;
+        console.log(spec[spec.length-1], spec[0], spec.slice(1, -1), parseFloat(spec.slice(1, -1)), this.unit[spec[spec.length-1]]);
+        switch(spec[0]) {
+            case '+':
+            case '-':
+                console.log("asdf")
+                var sign = spec[0] == '+'?1:-1;
+                if(spec[spec.length-1] in this.unit) {
+                    time += sign * parseFloat(spec.slice(1, -1)) * this.unit[spec[spec.length-1]];
+                }
+                break;
+            default:
+                    console.log("parse")
+                time = Date.parse(spec)
+        }
+        if(!time) {
+            return "unable to parse date or time delta"
+        }
+        switch(message["message_type"]) {
+            case "group":
+                timeoutid = setTimeout(() => {
+                    cqc.groupmsg(message["group_id"], last)
+                }, time - Date.now())
+                break;
+            case "private":
+                timeoutid = setTimeout(() => {
+                    cqc.privmsg(message["user_id"], last)
+                }, time - Date.now())
+                break;
+            default:
+                return;
+        }
+        return `timeout scheduled after ${(time - Date.now()) / 1000}`
     }
 }
 
@@ -409,4 +472,5 @@ module.exports = {
     JoinHandler,
     LeaveHandler,
     PingHandler,
+    ScheduleHandler
 }

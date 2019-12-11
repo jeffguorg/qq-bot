@@ -4,16 +4,17 @@ const config = require("./config")
 
 const handlers = require("./handlers")
 const shellquote = require("shell-quote")
-
+process.env.TZ = 'Asia/Shanghai' 
 const wss = new WebSocket.Server({ port: config.server.port });
 
 new handlers.AtHandler();
 new handlers.CatHandler("cat");
 new handlers.JoinHandler()
-new handlers.KeywordResponder();
+//new handlers.KeywordResponder();
 new handlers.LeaveHandler()
 new handlers.PingHandler();
-new handlers.RepeatHandler("repeat");
+//new handlers.RepeatHandler("repeat");
+new handlers.ScheduleHandler();
 new handlers.ShortHandler("s");
 new handlers.TranslateHandler("translate");
 
