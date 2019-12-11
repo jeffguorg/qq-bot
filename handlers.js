@@ -87,7 +87,7 @@ class AtHandler extends CQHandler {
                 resp.push({
                     "type": "at",
                     "data": {
-                        "qq": args[ind]
+                        "qq": parseInt(args[ind])
                     }
                 })
             }
