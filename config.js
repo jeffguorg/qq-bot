@@ -7,6 +7,9 @@ module.exports = {
     client: {
         endpoint: process.env.CLIENT_ENDPOINT
     },
+    cache: {
+        
+    },
     translate: {
         qcloud: {
             secret_id: process.env.TRANSLATE_QCLOUD_SECRET_ID,
