@@ -119,7 +119,7 @@ class RepeatHandler extends CQHandler {
             }]
         }
         let possibility = kwargs.possibility || 1
-        if(message["user_id"] != 1254847698) {
+        if(config.admin.indexOf(message["user_id"]) < 0) {
             possibility = Math.min(kwargs.possibility, config.repeat.posibility_cap);
         }
         if(cmd == "repeat") {
@@ -235,7 +235,7 @@ class JoinHandler extends CQHandler {
     }
 
     handle(cqc, message, cmd, args=[], kwargs={}, last=null, body=null) {
-        if(message["user_id"] != 1254847698) {
+        if(config.admin.indexOf(message["user_id"]) < 0) {
             return;
         }
         var flag = null;
@@ -281,9 +281,9 @@ class LeaveHandler extends CQHandler {
     }
 
     handle(cqc, message, cmd, args=[], kwargs={}, last=null, body=null) {
-        if(message["user_id"] == 1254847698) {
+        if(config.admin.indexOf(message["user_id"]) >= 0) {
             let group_id = parseInt(args[0] || kwargs.group || kwargs.group_id);
-            cqc.privmsg(1254847698, `leaving ${group_id}`)
+            cqc.privmsg(message["user_id"], `leaving ${group_id}`)
             cqc.group_leave(group_id)
         }
     }
@@ -306,7 +306,7 @@ class TranslateHandler extends CQHandler {
                     cqc.groupmsg(message["group_id"], "+" + this.cmd + " [from=<language code>|auto] to=<language code>")
                 } else {
                     var user_id = message['user_id'];
-                    if(message["user_id"] == 1254847698) {
+                    if(config.admin.indexOf(message["user_id"]) >= 0) {
                         if(kwargs.user_id) {
                             user_id = kwargs.user_id
                         }

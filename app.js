@@ -96,7 +96,7 @@ wss.on('connection', function connection(ws, req) {
                         case "group":
                             switch(message["sub_type"]){
                                 case "invite":
-                                    cqc.privmsg(1254847698, [{
+                                    cqc.privmsg(config.admin[0], [{
                                         "type": "text",
                                         "data": {
                                             "text": `User ${message["user_id"]} invite bot to join ${message["group_id"]}. flag=${message["flag"]}`
@@ -104,7 +104,7 @@ wss.on('connection', function connection(ws, req) {
                                     }])
                                     break;
                                 case "add":
-                                    cqc.privmsg(1254847698, [{
+                                    cqc.privmsg(config.admin[0], [{
                                         "type": "text",
                                         "data": {
                                             "text": `User ${message["user_id"]} wants to join ${message["group_id"]}. flag=${message["flag"]}`
@@ -113,7 +113,7 @@ wss.on('connection', function connection(ws, req) {
                             }
                             break;
                         case "friend":
-                            cqc.privmsg(1254847698, [{
+                            cqc.privmsg(config.admin[0], [{
                                 "type": "text",
                                 "data": {
                                     "text": `User ${message["user_id"]} wants to add bot for '${message["comment"]}'. flag=${message["flag"]}`
@@ -127,7 +127,7 @@ wss.on('connection', function connection(ws, req) {
             cqc.ping()
         })
         cqc.on("pong", () => {
-            cqc.privmsg(1254847698, [{
+            cqc.privmsg(config.admin[0], [{
                 "type": "text",
                 "data": {
                     "text": "pong"

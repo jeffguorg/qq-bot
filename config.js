@@ -1,5 +1,6 @@
 module.exports = {
     debug: true,
+    admin: process.env.BOT_ADMIN.split(",").map((v) => parseFloat(v)),
     server: {
         port: parseInt(process.env.SERVER_PORT),
     },
