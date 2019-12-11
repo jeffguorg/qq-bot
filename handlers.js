@@ -1,5 +1,6 @@
 const translate = require("./translate").APIs;
 const config = require("./config");
+const cache = require("./cache");
 
 class CQHandler{
     constructor (...cmds) {
