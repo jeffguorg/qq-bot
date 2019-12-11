@@ -49,7 +49,6 @@ class AtHandler extends CQHandler {
         super("at");
     }
     handle(cqc, message, cmd, args=[], kwargs={}, last=null, body=null) {
-        super.handle(cmd)
         if(message["message_type"] != "group") {
             return [{
                 "type": "text",
@@ -110,7 +109,6 @@ class RepeatHandler extends CQHandler {
         this.pipe_stop = pipe_stop;
     }
     handle(cqc, message, cmd, args=[], kwargs={}, last=null, body=null) {
-        super.handle(cmd)
         if(message["message_type"] != "group") {
             return [{
                 "type": "text",
@@ -123,6 +121,7 @@ class RepeatHandler extends CQHandler {
         if(config.admin.indexOf(message["user_id"]) < 0) {
             possibility = Math.min(kwargs.possibility, config.repeat.posibility_cap);
         }
+        
         if(cmd == "repeat") {
             if(args.length == 0){
                 RepeatHandler.state.machines[message['group_id']] = 
@@ -306,23 +305,30 @@ class TranslateHandler extends CQHandler {
 
     handle(cqc, message, cmd, args=[], kwargs={}, last=null, body=null) {
         var results = []
+        if(message["message_type"] != "group") {
+            return;
+        }
+        let {user_id, group_id} = message;
+        if(config.admin.indexOf(message["user_id"]) >= 0) {
+            if(kwargs.user_id) {
+                user_id = kwargs.user_id
+            }      
+            if(kwargs.group_id) {
+                user_id = kwargs.group_id
+            }
+        }
+
         switch (args.length) {
             case 0:
                 if (!("to" in kwargs)) {
-                    cqc.groupmsg(message["group_id"], this.help_message)
+                    cqc.groupmsg(group_id, this.help_message)
                 } else {
-                    var user_id = message['user_id'];
-                    if(config.admin.indexOf(message["user_id"]) >= 0) {
-                        if(kwargs.user_id) {
-                            user_id = kwargs.user_id
-                        }
-                    }
-                    TranslateHandler.state.targets[user_id] = {
+                    TranslateHandler.state.targets[`${group_id}:${user_id}`] = {
                         "from": kwargs.from || "auto",
                         "to": kwargs.to,
                         "match": new RegExp(kwargs.match || ".+")
                     };
-                    cqc.groupmsg(message['group_id'], "added to targets")
+                    cqc.groupmsg(message['group_id'], `${user_id} added`)
                 }
                 break;
             case 1:
@@ -348,8 +354,7 @@ class TranslateHandler extends CQHandler {
                         th : 泰文\n\
                         auto : 自动识别源语言，只能用于from字段"
                     case 'off':
-                        var qq = kwargs.qq || message['user_id'];
-                        delete TranslateHandler.state.targets[qq];
+                        delete TranslateHandler.state.targets[`${group_id}:${user_id}`];
                         break;
                 }
                 break;
@@ -359,14 +364,23 @@ class TranslateHandler extends CQHandler {
         return results;
     }
     pipe(cqc, message) {
-        let user_id = message["user_id"];
-        let group_id = message["group_id"];
-        if(user_id in TranslateHandler.state.targets) {
-            if(config.debug) {
-                console.log(TranslateHandler.state.targets[user_id].match)
-                console.log(TranslateHandler.state.targets[user_id].match.test(message['message']))
+        if(message["message_type"] != "group") {
+            return;
+        }
+        let {user_id, group_id} = message;
+        if(config.admin.indexOf(message["user_id"]) >= 0) {
+            if(kwargs.user_id) {
+                user_id = kwargs.user_id
             }
-            if(TranslateHandler.state.targets[user_id].match.test(message['message'])) {
+            if(kwargs.group_id) {
+                user_id = kwargs.group_id
+            }
+        }
+        if(`${group_id}:${user_id}` in TranslateHandler.state.targets) {
+            if(config.debug) {
+                console.log(TranslateHandler.state.targets[`${group_id}:${user_id}`].match.test(message['message']))
+            }
+            if(TranslateHandler.state.targets[`${group_id}:${user_id}`].match.test(message['message'])) {
                 this.api.translate(message['message'], TranslateHandler.state.targets[user_id].from, TranslateHandler.state.targets[user_id].to, (response) => {
                     cqc.groupmsg(group_id, response);
                 });
