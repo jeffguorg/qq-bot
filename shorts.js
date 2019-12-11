@@ -15,19 +15,17 @@ module.exports = {
     ],
     "tuna": [
         {
-            "type": "share",
+            "type": "text",
             "data": {
-                "url": "https://mirros.tuna.tsinghua.edu.cn",
-                "title": "清华咸鱼源"
+                "text": "https://mirros.tuna.tsinghua.edu.cn\n清华咸鱼源",
             }
         }
     ],
     "conda": [
         {
-            "type": "share",
+            "type": "text",
             "data": {
-                "url": "https://docs.conda.io/en/latest/miniconda.html",
-                "title": "Anaconda官网"
+                "text": "https://docs.conda.io/en/latest/miniconda.html\nAnaconda官网",
             }
         }
     ],
@@ -45,7 +43,6 @@ module.exports = {
             "data": {
                 "text": "https://www.centos.org"
             }
-
         }
     ],
     "vs": [
