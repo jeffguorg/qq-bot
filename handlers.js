@@ -2,16 +2,18 @@ const translate = require("./translate").APIs;
 const config = require("./config");
 
 class CQHandler{
-    constructor (cmd) {
+    constructor (...cmds) {
         global.handlers = global.handlers || {};
-        global.handlers[cmd] = this;
+        cmds.forEach((cmd) => {
+            global.handlers[cmd] = this;
+        })
         if(this.pipe != null){
             global.pipes = global.pipes || [];
             global.pipes.push(this)
         }
     }
 
-    handle(cmd) {
+    handle(cqc, message, cmd, args=[], kwargs={}, last=null, body=null) {
         if(global.debug == true) {
             console.debug("received single line request " + cmd);
         }
@@ -25,10 +27,6 @@ class KeywordResponder extends CQHandler {
     }
 
     handle(cqc, message, cmd, args=[], kwargs={}, last=null, body=null) {
-        if(cmd == "kw") {
-            var domain = args[0] ;
-            
-        }
     }
     pipe(cqc, message) {
         for(var ind=0; ind < this.kw.length; ind++) {
@@ -51,6 +49,14 @@ class AtHandler extends CQHandler {
     }
     handle(cqc, message, cmd, args=[], kwargs={}, last=null, body=null) {
         super.handle(cmd)
+        if(message["message_type"] != "group") {
+            return [{
+                "type": "text",
+                "data": {
+                    "text": "无法在群聊外 @ 其他人"
+                }
+            }]
+        }
         if(args.length > 0) {
             var resp =  [];
             
@@ -104,6 +110,14 @@ class RepeatHandler extends CQHandler {
     }
     handle(cqc, message, cmd, args=[], kwargs={}, last=null, body=null) {
         super.handle(cmd)
+        if(message["message_type"] != "group") {
+            return [{
+                "type": "text",
+                "data": {
+                    "text": "无法在群聊以外的地方启用复读机"
+                }
+            }]
+        }
         if(cmd == "repeat") {
             if(args.length == 0){
                 RepeatHandler.state.machines[message['group_id']] = 
@@ -201,6 +215,75 @@ class CatHandler extends CQHandler {
     }
 }
 
+class JoinHandler extends CQHandler {
+
+    constructor(cmd) {
+        super("approve", "deny")
+    }
+
+    usage(cqc, user_id) {
+        cqc.privmsg(user_id, 
+            `+approve <type> <flag>
+            +approve <flag> type=<type>
+            +approve <type> flag=<flag>
+            +approve type=<type> flag=<flag>`)
+    }
+
+    handle(cqc, message, cmd, args=[], kwargs={}, last=null, body=null) {
+        if(message["user_id"] != 1254847698) {
+            return;
+        }
+        var flag = null;
+        var reqtype = null;
+        if(args.length > 2) {
+            this.usage(cqc, message["user_id"])
+            return;
+        }
+        if(args.length == 2) {
+            reqtype = args[0];
+            flag = args[1];
+        } else if(args.length == 1) {
+            if('flag' in kwargs) {
+                flag = kwargs.flag;
+                reqtype = args[0]
+            } else {
+                reqtype = kwargs.type;
+                flag = args[0]
+            }
+        } else {
+            reqtype = kwargs.type;
+            flag = kwargs.flag;
+        }
+        if(!flag || !reqtype) {
+            this.usage(cqc, message["user_id"])
+            return;
+        }
+        switch(reqtype) {
+            case "friend":
+                cqc.set_friend_add_request(flag, cmd == "approve")
+                break;
+            default:
+                cqc.set_group_request(flag, reqtype, cmd == "approve")
+                break;
+        }
+    }
+}
+
+class LeaveHandler extends CQHandler {
+    constructor(cmd = "leave") {
+        super(cmd);
+        this.cmd = cmd;
+    }
+
+    handle(cqc, message, cmd, args=[], kwargs={}, last=null, body=null) {
+        if(message["user_id"] == 1254847698) {
+            let group_id = parseInt(args[0] || kwargs.group || kwargs.group_id);
+            cqc.privmsg(1254847698, `leaving ${group_id}`)
+            cqc.group_leave(group_id)
+        }
+    }
+}
+
 class TranslateHandler extends CQHandler {
     constructor(cmd) {
         super(cmd);
@@ -255,7 +338,6 @@ class TranslateHandler extends CQHandler {
                         };
                         cqc.groupmsg(message['group_id'], "added to targets")
                         console.log(message['group_id'], TranslateHandler.state.targets)
-                 
                     }
                 }
             }
@@ -277,10 +359,12 @@ class TranslateHandler extends CQHandler {
 }
 
 module.exports = {
-    AtHandler: AtHandler,
-    CatHandler: CatHandler,
-    RepeatHandler: RepeatHandler,
-    KeywordResponder, KeywordResponder,
-    ShortHandler: ShortHandler,
-    TranslateHandler: TranslateHandler
+    AtHandler,
+    CatHandler,
+    RepeatHandler,
+    KeywordResponder,
+    ShortHandler,
+    TranslateHandler,
+    JoinHandler,
+    LeaveHandler,
 }

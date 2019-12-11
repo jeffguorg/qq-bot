@@ -1,12 +1,31 @@
 const ws = require("ws")
 
-module.exports = class CQClient {
+const events = require("events");
+
+module.exports = class CQClient extends events.EventEmitter {
     constructor(endpoint) {
-        this.ws = new ws(endpoint)
+        super();
+
+        this.ws = new ws(endpoint);
+        this.ws.on("open", (ws) => {
+            this.emit("open")
+        })
+        
+        this.ws.on("pong", () => {
+            this.emit("pong")
+        })
+        this.ws.on("ping", () => {
+            this.emit("ping")
+        })
+
         this.ws.on("message", (data)=>{
             if(global.echo == true)
                 console.debug("ws on_message: ", data)
         })
+    }
+
+    ping() {
+        this.ws.ping()
     }
 
     send(data) {
@@ -59,6 +78,35 @@ module.exports = class CQClient {
                 "group_id": group,
                 "user_id": user_id,
                 "duration": duration
+            }
+        }))
+    }
+    group_leave(group_id) {
+        this.send(JSON.stringify({
+            "action": "set_group_leave",
+            "params": {
+                group_id
+            },
+        }))
+    }
+    set_group_request(flag, sub_type, approve, reason=null) {
+        this.send(JSON.stringify({
+            "action": "set_group_add_request",
+            "params": {
+                flag,
+                sub_type,
+                approve,
+                reason,
+            }
+        }))
+    }
+    set_friend_add_request(flag, approve, remark=null) {
+        this.send(JSON.stringify({
+            "action": "set_friend_add_request",
+            "params": {
+                flag,
+                approve,
+                remark,
             }
         }))
     }

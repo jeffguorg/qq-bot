@@ -13,6 +13,24 @@ module.exports = {
             }
         }
     ],
+    "tuna": [
+        {
+            "type": "share",
+            "data": {
+                "url": "https://mirros.tuna.tsinghua.edu.cn",
+                "title": "清华咸鱼源"
+            }
+        }
+    ],
+    "conda": [
+        {
+            "type": "share",
+            "data": {
+                "url": "https://docs.conda.io/en/latest/miniconda.html",
+                "title": "Anaconda官网"
+            }
+        }
+    ],
     "ub": [
         {
             "type": "text",

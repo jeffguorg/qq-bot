@@ -1,6 +1,15 @@
 module.exports = {
     debug: true,
+    server: {
+        port: parseInt(process.env.SERVER_PORT),
+    },
     client: {
-        endpoint: "ws://172.17.0.2:6700/api/"
+        endpoint: process.env.CLIENT_ENDPOINT
+    },
+    translate: {
+        qcloud: {
+            secret_id: process.env.TRANSLATE_QCLOUD_SECRET_ID,
+            secret_key: process.env.TRANSLATE_QCLOUD_SECRET_KEY
+        }
     }
 }
