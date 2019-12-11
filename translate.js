@@ -41,7 +41,7 @@ class QCloudTranslateAPI extends TranslateAPI {
         }))
         this.client.TextTranslate(req, function(errMsg, response){
             if(errMsg){
-                callback(errMsg);
+                callback(JSON.stringify(errMsg));
             }else{
                 callback(response.TargetText);
             }

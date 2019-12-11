@@ -353,14 +353,17 @@ class TranslateHandler extends CQHandler {
         return results;
     }
     pipe(cqc, message) {
-        for(var qq in TranslateHandler.state.targets) {
-            if(message['user_id'] == qq && TranslateHandler.state.targets[qq].match.test(message['message'])) {
-                (function(api, cqc, msg, group_id) {
-                    function callback(response) {
-                        cqc.groupmsg(group_id, response);
-                    }
-                    api.translate(msg['message'], TranslateHandler.state.targets[qq].from, TranslateHandler.state.targets[qq].to, callback);
-                })(this.api, cqc, message, message['group_id']);
+        let user_id = message["user_id"];
+        let group_id = message["group_id"];
+        if(user_id in TranslateHandler.state.targets) {
+            if(config.debug) {
+                console.log(TranslateHandler.state.targets[user_id].match)
+                console.log(TranslateHandler.state.targets[user_id].match.test(message['message']))
+            }
+            if(TranslateHandler.state.targets[user_id].match.test(message['message'])) {
+                this.api.translate(message['message'], TranslateHandler.state.targets[user_id].from, TranslateHandler.state.targets[user_id].to, (response) => {
+                    cqc.groupmsg(group_id, response);
+                });
             }
         }
     }
