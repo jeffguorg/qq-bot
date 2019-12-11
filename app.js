@@ -70,17 +70,25 @@ wss.on('connection', function connection(ws, req) {
 
                             if (global.handlers[cmd] != null) {
                                 last_res = global.handlers[cmd].handle(cqc, message, cmd, args, kwargs, last_res, body);
+                                if(!(last_res instanceof Array)) {
+                                    last_res = [{
+                                        "type": "text",
+                                        "data": {
+                                            "text": last_res
+                                        }
+                                    },]
+                                }
                             } else {
                                 cqc.privmsg(message['user_id'], "[CQ:shake]")
                                 cqc.privmsg(message['user_id'], "Command " + cmd + " no handler found")
                                 break;
                             }
                         }
-                        if (last_res != null && i == rawcmd.length) {
+                        if (last_res != null && last_res.length > 0 && i == rawcmd.length) {
                             if (message['message_type'] == 'private')
                                 cqc.privmsg(message['user_id'], last_res)
                             else if (message['message_type'] == 'group')
-                                cqc.groupmsg(message['user_id'], last_res)
+                                cqc.groupmsg(message['group_id'], last_res)
                         }
                     } else {
                         for (var i = 0; i < (global.pipes || []).length; i++) {
@@ -122,6 +130,7 @@ wss.on('connection', function connection(ws, req) {
                             }])
                             break;
                     }
+                    break
             }
         });
         cqc.on("open", () => {
