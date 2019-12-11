@@ -5,10 +5,11 @@ module.exports = {
         port: parseInt(process.env.SERVER_PORT),
     },
     client: {
-        endpoint: process.env.CLIENT_ENDPOINT
+        endpoint: process.env.CLIENT_ENDPOINT,
     },
     cache: {
-        
+        url: process.env.REDIS_CACHE,
+        db: process.env.REDIS_DB || 0,
     },
     translate: {
         qcloud: {
