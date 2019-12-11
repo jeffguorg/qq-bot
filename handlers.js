@@ -118,9 +118,9 @@ class RepeatHandler extends CQHandler {
                 }
             }]
         }
-        let possibility = Math.min(kwargs.possibility || 1, 0.2)
-        if(message["user_id"] == 1254847698) {
-            possibility = kwargs.possibility;
+        let possibility = kwargs.possibility || 1
+        if(message["user_id"] != 1254847698) {
+            possibility = Math.min(kwargs.possibility, config.repeat.posibility_cap);
         }
         if(cmd == "repeat") {
             if(args.length == 0){
