@@ -471,6 +471,16 @@ class PingHandler extends CQHandler {
     }
 }
 
+class Ignore extends CQHandler {
+    constructor(...cmd) {
+        super(...cmd)
+    }
+
+    handle(cqc, message, cmd, args = [], kwargs = {}, last = null, body = null) {
+        return last;
+    }
+}
+
 module.exports = {
     AtHandler,
     CatHandler,
@@ -481,5 +491,6 @@ module.exports = {
     JoinHandler,
     LeaveHandler,
     PingHandler,
-    ScheduleHandler
+    ScheduleHandler,
+    Ignore,
 }

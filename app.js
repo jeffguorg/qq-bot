@@ -17,6 +17,7 @@ new handlers.PingHandler();
 new handlers.ScheduleHandler();
 new handlers.ShortHandler("s");
 new handlers.TranslateHandler("translate");
+new handlers.Ignore("1", "10086")
 
 global.debug = true;
 global.echo = true;
