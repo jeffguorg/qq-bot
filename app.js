@@ -71,7 +71,7 @@ wss.on('connection', function connection(ws, req) {
 
                             if (global.handlers[cmd] != null) {
                                 last_res = global.handlers[cmd].handle(cqc, message, cmd, args, kwargs, last_res, body);
-                                if(!(last_res instanceof Array)) {
+                                if(last_res != null && !(last_res instanceof Array)) {
                                     last_res = [{
                                         "type": "text",
                                         "data": {
@@ -85,7 +85,7 @@ wss.on('connection', function connection(ws, req) {
                                 break;
                             }
                         }
-                        if (last_res != null && last_res.length > 0 && i == rawcmd.length) {
+                        if (last_res != null && last_res.length > 0 && last_res != "" && i == rawcmd.length) {
                             if (message['message_type'] == 'private')
                                 cqc.privmsg(message['user_id'], last_res)
                             else if (message['message_type'] == 'group')
