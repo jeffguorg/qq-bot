@@ -215,7 +215,7 @@ class ShortHandler extends CQHandler {
 class CatHandler extends CQHandler {
     handle(cqc, message, cmd, args=[], kwargs={}, last=null, body=null) {
         if(cmd == "cat") {
-            return body.join("\n");
+            return (body || []).join("\n");
         }
     }
 }
